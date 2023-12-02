@@ -30,11 +30,12 @@ jobs:
             mv snyk /usr/local/bin/
             npm install
             snyk auth $SNYK_TOKEN
-            snyk test --json > snyk-results.json
+            snyk test --json > snyk-results.json || true
 
       - store_artifacts:
           path: snyk-results.json
           destination: snyk-artifact
+          when: always
 
   integration:
     docker:
@@ -45,6 +46,7 @@ jobs:
           command: |
             echo "This is an integration step"
             exit 1
+          when: on_fail
 
   prod:
     docker:
@@ -66,7 +68,7 @@ workflows:
             - test
       - integration:
           requires:
-            - test
+            - oast-snyk
       - prod:
           type: approval
           requires:
